@@ -1,11 +1,15 @@
 <?php
-require_once __DIR__ . '/../services/UserService.php';
+require_once __DIR__ . '/../services/user.service.php';
+require_once __DIR__ . '/../services/auth.service.php';
+
 
 class UserController {
     private $userService;
-
+    private $authService;
+    
     public function __construct() {
         $this->userService = new UserService();
+        $this->authService = new AuthService();
     }
 
     public function getAllUsers() {
@@ -21,5 +25,16 @@ class UserController {
          } catch (Exception $e) {
             echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
         }
+    }
+
+    public function login() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $email = $input['email'] ?? '';
+        $password = $input['password'] ?? '';
+        if (empty($email) || empty($password)) {
+            return ResponseHelper::error("Thiếu email hoặc mật khẩu", null, 400);
+        }
+
+        return $this->authService->login($email, $password);
     }
 }

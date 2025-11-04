@@ -25,7 +25,7 @@ class UserModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-     public function countAll($search) {
+    public function countAll($search) {
         $sql = "SELECT COUNT(*) as total FROM users 
                 WHERE username LIKE :search OR email LIKE :search";
         $stmt = $this->conn->prepare($sql);
@@ -35,6 +35,12 @@ class UserModel {
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$row['total'];
+    }
+
+    public function findByEmail($email) {
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]); // ✅ Dùng execute với mảng
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 

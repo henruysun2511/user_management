@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../controllers/UserController.php';
-require_once __DIR__ . '/../middlewares/RoleMiddleware.php';
+require_once __DIR__ . '/../controllers/user.controller.php';
+require_once __DIR__ . '/../middlewares/role.middleware.php';
 
 $controller = new UserController();
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

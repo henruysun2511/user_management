@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . '/../utils/ResponseHelper.php';
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../helpers/responseHelper.php';
+require_once __DIR__ . '/../database/database.php';
 
 class RoleMiddleware {
     public static function authorize($method, $endpoint) {
         $user = $GLOBALS['auth_user'] ?? null;
 
         if (!$user) {
-            echo ResponseHelper::error("Chưa đăng nhập.", 401);
+            echo ResponseHelper::error("Chưa đăng nhập.", null ,401);
             exit;
         }
 
