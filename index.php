@@ -22,3 +22,5 @@ require_once __DIR__ . '/controllers/user.controller.php';
 // Routes
 require_once __DIR__ . '/routes/auth.route.php';
 require_once __DIR__ . '/routes/user.route.php';
+require_once __DIR__ . '/routes/permission.route.php';
+
