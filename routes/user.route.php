@@ -15,7 +15,7 @@ if ($uri === '/api/users' && $method === 'GET') {
 
 // Cập nhật user
 if ($uri === '/api/users' && $method === 'PUT') {
-      //thêm auth midlleware ở đây
+    //thêm auth midlleware ở đây
     RoleMiddleware::authorize('PUT', '/api/users');
     $data = json_decode(file_get_contents("php://input"), true);
     echo $controller->updateUser($data);

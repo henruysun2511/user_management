@@ -8,6 +8,7 @@ class UserModel {
         $this->conn = $db->connect();
     }
 
+    //Lấy danh sách người dùng (pagination, query)
     public function getAll($limit, $offset, $search){
         $sql = "SELECT *
                 FROM users 
@@ -25,6 +26,27 @@ class UserModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    //Register
+
+    //Chỉnh sửa thông tin người dùng
+    public function update($id, $data) {
+        $sql = "UPDATE users SET username = :username, email = :email WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':username', $data['username']);
+        $stmt->bindParam(':email', $data['email']);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    //Xóa người dùng
+    
+    //Cập nhật mật khẩu
+    public function updatePassword($userId, $passwordHash) {
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        return $stmt->execute([$passwordHash, $userId]);
+    }
+
+    //Đếm số bản ghi
     public function countAll($search) {
         $sql = "SELECT COUNT(*) as total FROM users 
                 WHERE username LIKE :search OR email LIKE :search";
@@ -39,7 +61,7 @@ class UserModel {
 
     public function findByEmail($email) {
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]); // ✅ Dùng execute với mảng
+        $stmt->execute([$email]); 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
