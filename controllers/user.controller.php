@@ -26,7 +26,9 @@ class UserController {
             echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
-
+    public function getProfile($userInfo) {
+        return ResponseHelper::success("Thông tin người dùng", $userInfo);
+    }
     public function login() {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? '';

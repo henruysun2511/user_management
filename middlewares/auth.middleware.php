@@ -26,7 +26,7 @@ function authMiddleware($request, $next) {
   }
 
   // Gắn user info vào request
-  $request['user'] = $decoded;
+  $request['user'] =(array) $decoded;
 
   // Cho đi tiếp
   return $next($request);

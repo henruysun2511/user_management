@@ -36,14 +36,24 @@ class AuthService {
           return ResponseHelper::error("Sai mật khẩu", null, 401);
       }
 
-      // Tạo session
-      session_start();
-      $_SESSION['user'] = [
-          'id' => $user['id'],
-          'email' => $user['email'],
-          'role' => $user['role']
-      ];
+           // Tạo payload
+        $payload = [
+            "id" => $user['id'],
+            "email" => $user['email'],
+            "role" => $user['role'],
+            "exp" => time() + (60 * 60 * 24) // token sống 24h
+        ];
 
-      return ResponseHelper::success("Đăng nhập thành công", $_SESSION['user'],200);
+        // Ký token
+        $token = JWT::encode($payload, $this->secret, 'HS256');
+
+        return ResponseHelper::success("Đăng nhập thành công", [
+            "token" => $token,
+            "user" => [
+                "id" => $user['id'],
+                "email" => $user['email'],
+                "role" => $user['role']
+            ]
+        ], 200);
   }
 }
