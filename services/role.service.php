@@ -20,11 +20,14 @@ class RoleService {
 
     public function updateRole($id, $name, $desc = null) {
         $role = this.roleModel->findById($id);
+        
+        $newName = $desc ?? $role['name'];
+        $newDesc = $desc ?? $role['description'];
         if (!$role) {
             return ResponseHelper::error("Vai trò không tồn tại", null, 404);
         }
 
-        return $this->roleModel->update($id, $name, $desc);
+        return $this->roleModel->update($id, $newName, $newDesc);
     }
 
     public function deleteRole($id) {

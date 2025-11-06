@@ -27,4 +27,28 @@ class UserService {
             ]
         ];
     }
+
+    public function updateUser($id, $data) {
+    $user = $this->userModel->getById($id);
+    if (!$user) {
+        throw new Exception("Không tìm thấy người dùng");
+    }
+
+    // Gộp dữ liệu: nếu không gửi thì giữ nguyên
+    $updateData = [
+        'fullName' => $data['fullName'] ?? $user['fullName'],
+        'gender' => $data['gender'] ?? $user['gender'],
+        'phoneNumber' => $data['phoneNumber'] ?? $user['phoneNumber'],
+        'role_id' => $data['role_id'] ?? $user['role_id']
+    ];
+
+    $updated = $this->userModel->update($id, $updateData);
+    if (!$updated) {
+        throw new Exception("Không thể cập nhật thông tin người dùng");
+    }
+
+    $newUser = $this->userModel->getById($id);
+    unset($newUser['password']);
+    return $newUser;
+}
 }

@@ -14,10 +14,22 @@ if ($uri === '/api/users' && $method === 'GET') {
 }
 
 // Cập nhật user
-if ($uri === '/api/users' && $method === 'PUT') {
+if ($uri === '/api/users' && $method === 'PATCH') {
     //thêm auth midlleware ở đây
-    RoleMiddleware::authorize('PUT', '/api/users');
+    RoleMiddleware::authorize('PATCH', '/api/users');
     $data = json_decode(file_get_contents("php://input"), true);
     echo $controller->updateUser($data);
 }
+
+
+if (preg_match('#^/api/users/(\d+)$#', $path, $matches) && $method === 'PATCH') {
+    RoleMiddleware::authorize('PATCH', '/api/users');
+    echo $roleController->updateUser($matches[1]);
+}
+
+if (preg_match('#^/api/users/(\d+)$#', $path, $matches) && $method === 'DELETE') {
+    RoleMiddleware::authorize('DELETE', '/api/users');
+    echo $roleController->deleteUser($matches[1]);
+}
+
 ?>

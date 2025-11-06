@@ -18,6 +18,11 @@ if ($_SERVER['REQUEST_URI'] === '/login' && $_SERVER['REQUEST_METHOD'] === 'POST
   $userController->login();
 }
 
+if ($path === '/api/auth/register' && $method === 'POST') {
+    $authController->register();
+    exit;
+}
+
 if ($path === '/api/auth/forgot-password' && $method === 'POST') {
     RoleMiddleware::authorize('POST', '/api/auth/forgot-password');
     $userController->sendOtp();

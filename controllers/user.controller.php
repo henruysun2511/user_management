@@ -41,6 +41,74 @@ class UserController {
         return $this->authService->login($email, $password);
     }
 
+    public function updateUser($id){
+        $input = json_decode(file_get_contents('php://input'), true);
+        $gender = $input['gender'] ?? null;
+        $phoneNumber = $input['phoneNumber'] ?? null;
+        $role_id = $input['role_id'] ?? '';
+
+        $data = [
+            'fullName' => $fullName,
+            'gender' => $gender,
+            'phoneNumber' => $phoneNumber,
+            'role_id' => $role_id
+        ];
+
+        $errors = ValidatorHelper::validateUserUpdate($data);
+        if (!empty($errors)) {
+            throw new Exception(implode(", ", $errors));
+        }
+
+        try {
+            $user = $this->authService->updateUser($data);
+            echo ResponseHelper::success("Cập nhật thông tin người dùng thành công", $user);
+        } catch (Exception $e) {
+            echo ResponseHelper::error("Lỗi" . $e->getMessage(), 400);
+        }
+    }
+
+
+    public function register() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $fullName = $input['fullName'] ?? '';
+        $email = $input['email'] ?? '';
+        $password = $input['password'] ?? '';
+        $gender = $input['gender'] ?? null;
+        $phoneNumber = $input['phoneNumber'] ?? null;
+        $role_id = $input['role_id'] ?? '';
+
+        if (empty($fullName) || empty($email) || empty($password)) {
+            echo ResponseHelper::error("Vui lòng nhập đầy đủ thông tin", null, 400);
+            return;
+        }
+
+        if (empty($role_id)) {
+            echo ResponseHelper::error("Chưa gán vai trò cho người dùng", null, 400);
+            return;
+        }
+
+         $data = [
+            'fullName' => $fullName,
+            'email' => $email,
+            'password' => $password,
+            'gender' => $gender,
+            'phoneNumber' => $phoneNumber,
+            'role_id' => $role_id
+        ];
+
+        $errors = ValidatorHelper::validateRegistration($data);
+        if (!empty($errors)) {
+            throw new Exception(implode(", ", $errors));
+        }
+
+        try {
+            $user = $this->authService->register($data);
+            echo ResponseHelper::success("Đăng ký thành công", $user);
+        } catch (Exception $e) {
+            echo ResponseHelper::error("Đăng ký thất bại" . $e->getMessage(), 400);
+        }
+    }
+
     public function forgotPassword() {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? '';

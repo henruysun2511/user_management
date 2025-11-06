@@ -6,6 +6,7 @@ require_once __DIR__ . '/../models/user.model.php';
 require_once __DIR__ . '/../models/otp.model.php';
 require_once __DIR__ . '/../helpers/mailHelper.php';
 require_once __DIR__ . '/../helpers/responseHelper.php';
+require_once __DIR__ . '/../../helpers/ValidatorHelper.php';
 
 class AuthService {
     private $userModel;
@@ -61,6 +62,43 @@ class AuthService {
                 "role" => $user['role']
             ]
         ]);
+    }
+
+     public function register($data) {
+        // Kiểm tra email đã tồn tại
+        if ($this->userModel->findByEmail($data['email'])) {
+            return ResponseHelper::error("Email đã được sử dụng", null, 401);
+        }
+
+        // Kiểm tra username đã tồn tại
+        if ($this->userModel->findByUsername($data['username'])) {
+            return ResponseHelper::error("Tên đăng nhập đã được sử dụng", null, 401);
+        }
+
+        // Mã hóa mật khẩu
+        $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        // Chuẩn bị dữ liệu
+        $userData = [
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $hashedPassword,
+            'full_name' => $data['full_name'] ?? '',
+            'phone' => $data['phone'] ?? '',
+            'birth' => $data['birth'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'role_id' => 1, 
+        ];
+
+        // Tạo user
+        $userId = $this->userModel->create($userData);
+        
+        if ($userId) {
+            // Lấy thông tin user vừa tạo (không bao gồm password)
+            $user = $this->userModel->getById($userId);
+            unset($user['password']);
+            return $user;
+        }
     }
 
     // Gửi OTP

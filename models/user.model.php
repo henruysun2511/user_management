@@ -26,7 +26,28 @@ class UserModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    //Register
+    //Lấy người dùng theo ID
+     public function getById($id) {
+        $sql = "SELECT * FROM users WHERE id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //Tạo người dùng mới
+     public function create($data) {
+        $sql = "INSERT INTO users (username, email, password, fullName, phoneNumber, birth, gender, role_id) 
+                VALUES (:username, :email, :password, :full_name, :phone, :birth, :gender, :role_id)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':username', $data['username'], PDO::PARAM_STR);
+        $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
+        $stmt->bindParam(':password', $data['password'], PDO::PARAM_STR);
+        $stmt->bindParam(':full_name', $data['full_name'], PDO::PARAM_STR);
+        $stmt->bindParam(':phone', $data['phone'], PDO::PARAM_STR);
+        $stmt->bindParam(':role', $data['role_id'], PDO::PARAM_STR);
+        return $stmt->execute();
+    }
 
     //Chỉnh sửa thông tin người dùng
     public function update($id, $data) {
