@@ -75,7 +75,8 @@ class UserController {
         $password = $input['password'] ?? '';
         $gender = $input['gender'] ?? null;
         $phoneNumber = $input['phoneNumber'] ?? null;
-        $role_id = $input['role_id'] ?? '';
+        $role_id = $input['role_id'] ?? '';;
+        $birth = $input['birth'];
 
         if (empty($fullName) || empty($email) || empty($password)) {
             echo ResponseHelper::error("Vui lòng nhập đầy đủ thông tin", null, 400);
@@ -93,7 +94,8 @@ class UserController {
             'password' => $password,
             'gender' => $gender,
             'phoneNumber' => $phoneNumber,
-            'role_id' => $role_id
+            'role_id' => $role_id,
+            'birth' => $birth
         ];
 
         $errors = ValidatorHelper::validateRegistration($data);

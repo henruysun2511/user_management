@@ -6,7 +6,7 @@ require_once __DIR__ . '/../models/user.model.php';
 require_once __DIR__ . '/../models/otp.model.php';
 require_once __DIR__ . '/../helpers/mailHelper.php';
 require_once __DIR__ . '/../helpers/responseHelper.php';
-require_once __DIR__ . '/../../helpers/ValidatorHelper.php';
+require_once __DIR__ . '/../helpers/validatorHelper.php';
 
 class AuthService {
     private $userModel;
@@ -48,7 +48,7 @@ class AuthService {
         $payload = [
             "id" => $user['id'],
             "email" => $user['email'],
-            "role" => $user['role'],
+            "role" => $user['role_id'],
             "exp" => time() + (60 * 60 * 24)
         ];
 
@@ -59,7 +59,7 @@ class AuthService {
             "user" => [
                 "id" => $user['id'],
                 "email" => $user['email'],
-                "role" => $user['role']
+                "role" => $user['role_id']
             ]
         ]);
     }
@@ -71,7 +71,7 @@ class AuthService {
         }
 
         // Kiểm tra username đã tồn tại
-        if ($this->userModel->findByUsername($data['username'])) {
+        if ($this->userModel->findByUsername($data['fullName'])) {
             return ResponseHelper::error("Tên đăng nhập đã được sử dụng", null, 401);
         }
 
@@ -80,10 +80,9 @@ class AuthService {
 
         // Chuẩn bị dữ liệu
         $userData = [
-            'username' => $data['username'],
             'email' => $data['email'],
             'password' => $hashedPassword,
-            'full_name' => $data['full_name'] ?? '',
+            'full_name' => $data['fullName'] ?? '',
             'phone' => $data['phone'] ?? '',
             'birth' => $data['birth'] ?? null,
             'gender' => $data['gender'] ?? null,

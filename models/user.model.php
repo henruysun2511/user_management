@@ -36,18 +36,22 @@ class UserModel {
     }
 
     //Tạo người dùng mới
-     public function create($data) {
-        $sql = "INSERT INTO users (username, email, password, fullName, phoneNumber, birth, gender, role_id) 
-                VALUES (:username, :email, :password, :full_name, :phone, :birth, :gender, :role_id)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':username', $data['username'], PDO::PARAM_STR);
-        $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
-        $stmt->bindParam(':password', $data['password'], PDO::PARAM_STR);
-        $stmt->bindParam(':full_name', $data['full_name'], PDO::PARAM_STR);
-        $stmt->bindParam(':phone', $data['phone'], PDO::PARAM_STR);
-        $stmt->bindParam(':role', $data['role_id'], PDO::PARAM_STR);
-        return $stmt->execute();
-    }
+   public function create($data) {
+    $sql = "INSERT INTO users (email, password, fullName, phoneNumber, birth, gender, role_id) 
+            VALUES (:email, :password, :full_name, :phone, :birth, :gender, :role_id)";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
+    $stmt->bindParam(':password', $data['password'], PDO::PARAM_STR);
+    $stmt->bindParam(':full_name', $data['full_name'], PDO::PARAM_STR);
+    $stmt->bindParam(':phone', $data['phone'], PDO::PARAM_STR);
+    $stmt->bindParam(':birth', $data['birth'], PDO::PARAM_STR);
+    $stmt->bindParam(':gender', $data['gender'], PDO::PARAM_STR);
+    $stmt->bindParam(':role_id', $data['role_id'], PDO::PARAM_INT);
+
+    return $stmt->execute();
+}
+
 
     //Chỉnh sửa thông tin người dùng
     public function update($id, $data) {
@@ -79,6 +83,14 @@ class UserModel {
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function findByUsername($fullName) {
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE fullName = ?");
+        $stmt->execute([$fullName]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
 
     public function updatePassword($userId, $passwordHash) {
         $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");

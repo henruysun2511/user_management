@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_URI'] === '/login' && $_SERVER['REQUEST_METHOD'] === 'POST
 }
 
 if ($path === '/api/auth/register' && $method === 'POST') {
-    $authController->register();
+    $userController->register();
     exit;
 }
 

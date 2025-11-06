@@ -4,11 +4,11 @@ class ValidatorHelper {
         $errors = [];
 
         // Kiểm tra username
-        if (empty($data['username'])) {
+        if (empty($data['fullName'])) {
             $errors[] = "Tên đăng nhập không được để trống";
-        } elseif (strlen($data['username']) < 3) {
+        } elseif (strlen($data['fullName']) < 3) {
             $errors[] = "Tên đăng nhập phải có ít nhất 3 ký tự";
-        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $data['username'])) {
+        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $data['fullName'])) {
             $errors[] = "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới";
         }
 
