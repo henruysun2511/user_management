@@ -14,10 +14,21 @@ if ($path === '/api/users/me' && $method === 'GET') {
     });
 }
 
-
 if ($_SERVER['REQUEST_URI'] === '/login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $userController->login();
-  }
+}
+
+if ($path === '/api/auth/forgot-password' && $method === 'POST') {
+    RoleMiddleware::authorize('POST', '/api/auth/forgot-password');
+    $userController->sendOtp();
+    exit;
+}
+
+if ($path === '/api/auth/reset-password' && $method === 'POST') {
+    RoleMiddleware::authorize('POST', '/api/auth/reset-password');
+    $userController->resetPassword();
+    exit;
+}
 
   
 

@@ -39,12 +39,6 @@ class UserModel {
     }
 
     //Xóa người dùng
-    
-    //Cập nhật mật khẩu
-    public function updatePassword($userId, $passwordHash) {
-        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-        return $stmt->execute([$passwordHash, $userId]);
-    }
 
     //Đếm số bản ghi
     public function countAll($search) {
@@ -61,8 +55,13 @@ class UserModel {
 
     public function findByEmail($email) {
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]); 
+        $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updatePassword($userId, $passwordHash) {
+        $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+        return $stmt->execute([$passwordHash, $userId]);
     }
 }
 

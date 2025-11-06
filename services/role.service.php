@@ -10,7 +10,8 @@ class RoleService {
     }
 
     public function getAllRoles() {
-        return $this->roleModel->getAll();;
+        $result = $this->roleModel->getAll();
+        return ["data" =>  $result];
     }
 
     public function createRole($name, $desc = null) {
