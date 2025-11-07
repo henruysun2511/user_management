@@ -1,62 +1,48 @@
 <?php
 require_once __DIR__ . '/../controllers/permission.controller.php';
 require_once __DIR__ . '/../helpers/responseHelper.php';
+require_once __DIR__ . '/../middlewares/role.middleware.php';
 
 $permissionController = new PermissionController();
 
 $method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-$path = str_replace('/user_management/index.php/', '', $uri);
+// GET /api/permission
+if ($path === '/api/permission' && $method === 'GET') {
+    RoleMiddleware::authorize('GET', '/api/permission');
+    $query = $_GET ?? [];
+    $permissionController->getAll($query);
+    exit;
+}
 
-preg_match('/^api\/permission(?:\/(\d+))?$/', $path, $matches);
-$id = $matches[1] ?? null;
+// GET /api/permission/{id}
+if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'GET') {
+    RoleMiddleware::authorize('GET', '/api/permission');
+    $permissionController->getById($matches[1]);
+    exit;
+}
 
-try {
-    switch ($method) {
-        case 'GET':
-            if ($id) {
-                //Lấy chi tiết quyền
-                $permissionController->getById($id);
-            } else {
-                $query = $_GET ?? [];
-                $permissionController->getAll($query);
-            }
-            break;
+// POST /api/permission
+if ($path === '/api/permission' && $method === 'POST') {
+    RoleMiddleware::authorize('POST', '/api/permission');
+    $data = json_decode(file_get_contents("php://input"), true);
+    $permissionController->create($data);
+    exit;
+}
 
-        case 'POST':
-            //Tạo quyền mới
-            $data = json_decode(file_get_contents("php://input"), true);
-            if (!$data) {
-                ResponseHelper::error("Dữ liệu đầu vào không hợp lệ", 400);
-            }
-            $permissionController->create($data);
-            break;
+// PATCH /api/permission/{id}
+if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'PATCH') {
+    RoleMiddleware::authorize('PATCH', '/api/permission');
+    $data = json_decode(file_get_contents("php://input"), true);
+    $permissionController->update($matches[1], $data);
+    exit;
+}
 
-        case 'PATCH':
-            //Cập nhật quyền
-            if (!$id) {
-                ResponseHelper::error("Thiếu ID trong yêu cầu", 400);
-            }
-            $data = json_decode(file_get_contents("php://input"), true);
-            if (!$data) {
-                ResponseHelper::error("Dữ liệu đầu vào không hợp lệ", 400);
-            }
-            $permissionController->update($id, $data);
-            break;
-
-        case 'DELETE':
-            //Xóa quyền
-            if (!$id) {
-                ResponseHelper::error("Thiếu ID trong yêu cầu", 400);
-            }
-            $permissionController->delete($id);
-            break;
-
-        default:
-            ResponseHelper::error("Phương thức không được hỗ trợ", 405);
-    }
-} catch (Exception $e) {
-    ResponseHelper::error($e->getMessage(), 400);
+// DELETE /api/permission/{id}
+if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'DELETE') {
+    RoleMiddleware::authorize('DELETE', '/api/permission');
+    $permissionController->delete($matches[1]);
+    exit;
 }
 ?>

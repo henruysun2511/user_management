@@ -16,15 +16,18 @@ require_once __DIR__ . '/middlewares/role.middleware.php';
 // Models
 require_once __DIR__ . '/models/user.model.php';
 require_once __DIR__ . '/models/role.model.php';
+require_once __DIR__ . '/models/permission.model.php';
 
 // Services
 require_once __DIR__ . '/services/auth.service.php';
 require_once __DIR__ . '/services/user.service.php';
 require_once __DIR__ . '/services/role.service.php';
+require_once __DIR__ . '/services/permission.service.php';
 
 // Controllers
 require_once __DIR__ . '/controllers/user.controller.php';
 require_once __DIR__ . '/controllers/role.controller.php';
+require_once __DIR__ . '/controllers/permission.controller.php';
 
 // Routes
 require_once __DIR__ . '/routes/auth.route.php';
