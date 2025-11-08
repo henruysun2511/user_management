@@ -90,8 +90,6 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-
-
     public function updatePassword($userId, $passwordHash) {
         $stmt = $this->conn->prepare("UPDATE users SET password = ? WHERE id = ?");
         return $stmt->execute([$passwordHash, $userId]);
