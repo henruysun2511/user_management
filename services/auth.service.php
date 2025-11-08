@@ -120,8 +120,7 @@ class AuthService {
         return null;
     }
 
-    // Đặt lại mật khẩu
-    public function resetPassword($email, $otp, $newPassword) {
+    public function verifyOtp($email, $otp){
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
             return ResponseHelper::error("Email không tồn tại", null, 404);
@@ -137,9 +136,12 @@ class AuthService {
         if (strtotime($verify['expires_at']) < time()) {
             return ResponseHelper::error("Mã OTP đã hết hạn", null, 400);
         }
+        return null;
+    }
 
+    // Đặt lại mật khẩu
+    public function resetPassword($email, $newPassword) {
         $hashPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
         return $this->userModel->updatePassword($user_id, $hashPassword);
     }
 }

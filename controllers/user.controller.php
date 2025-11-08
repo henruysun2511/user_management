@@ -125,21 +125,33 @@ class UserController {
         }
     }
 
-    public function resetPassword() {
+    public function verifyOto() {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? '';
         $otp = $input['otp'] ?? '';
-        $newPassword = $input['password'] ?? '';
 
         if (empty($otp)) {
             return ResponseHelper::error("Vui lòng nhập mã otp", null, 400);
         }
+
+        try{
+            $result = $this->authService->verifyToken($email, $otp);
+            echo ResponseMessage::success("Cập nhật mật khẩu thành công", $result);
+        } catch (Exception $e) {
+            echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
+        }
+    }
+
+    public function resetPassword() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $email = $input['email'] ?? '';
+        $newPassword = $input['password'] ?? '';
         
         if (empty($newPassword)) {
             return ResponseHelper::error("Vui lòng nhập mật khẩu", null, 400);
         }
         try{
-            $result = $this->authService->resetPassword($email, $otp, $newPassword);
+            $result = $this->authService->resetPassword($email, $newPassword);
             echo ResponseMessage::success("Cập nhật mật khẩu thành công", $result);
         } catch (Exception $e) {
             echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
