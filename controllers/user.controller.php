@@ -1,4 +1,7 @@
 <?php
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 require_once __DIR__ . '/../services/user.service.php';
 require_once __DIR__ . '/../services/auth.service.php';
 
@@ -6,6 +9,7 @@ require_once __DIR__ . '/../services/auth.service.php';
 class UserController {
     private $userService;
     private $authService;
+    private $secret = 'my_super_secret_key';
     
     public function __construct() {
         $this->userService = new UserService();
@@ -89,7 +93,7 @@ class UserController {
             return;
         }
 
-         $data = [
+        $data = [
             'fullName' => $fullName,
             'email' => $email,
             'password' => $password,
@@ -157,5 +161,21 @@ class UserController {
         } catch (Exception $e) {
             echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
+    }
+
+
+    public function logout() {
+        $headers = getallheaders();
+        $token = $headers['Authorization'] ?? null;
+
+        $token = str_replace("Bearer ", "", $token);
+        return $this->authService->logout($token);
+    }
+
+    public function refresh(){
+        // 1. Lấy refreshToken từ cookie
+        $refreshToken = $_COOKIE['refreshToken'] ?? null;
+        if (!$refreshToken) return ResponseHelper::error("Thiếu refreshToken", null, 400);
+        return $this->authService->refresh($refreshToken);
     }
 }
