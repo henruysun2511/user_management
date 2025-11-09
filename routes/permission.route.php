@@ -10,7 +10,7 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // GET /api/permission
 if ($path === '/api/permission' && $method === 'GET') {
-    RoleMiddleware::authorize('GET', '/api/permission');
+    RoleMiddleware::authorize('GET', '/api/permissions');
     $query = $_GET ?? [];
     $permissionController->getAll($query);
     exit;
@@ -18,14 +18,14 @@ if ($path === '/api/permission' && $method === 'GET') {
 
 // GET /api/permission/{id}
 if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'GET') {
-    RoleMiddleware::authorize('GET', '/api/permission');
+    RoleMiddleware::authorize('GET', '/api/permissions');
     $permissionController->getById($matches[1]);
     exit;
 }
 
 // POST /api/permission
 if ($path === '/api/permission' && $method === 'POST') {
-    RoleMiddleware::authorize('POST', '/api/permission');
+    RoleMiddleware::authorize('POST', '/api/permissions');
     $data = json_decode(file_get_contents("php://input"), true);
     $permissionController->create($data);
     exit;
@@ -33,7 +33,7 @@ if ($path === '/api/permission' && $method === 'POST') {
 
 // PATCH /api/permission/{id}
 if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'PATCH') {
-    RoleMiddleware::authorize('PATCH', '/api/permission');
+    RoleMiddleware::authorize('PATCH', '/api/permissions/:id');
     $data = json_decode(file_get_contents("php://input"), true);
     $permissionController->update($matches[1], $data);
     exit;
@@ -41,7 +41,7 @@ if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'PAT
 
 // DELETE /api/permission/{id}
 if (preg_match('#^/api/permission/(\d+)$#', $path, $matches) && $method === 'DELETE') {
-    RoleMiddleware::authorize('DELETE', '/api/permission');
+    RoleMiddleware::authorize('DELETE', '/api/permissions/:id');
     $permissionController->delete($matches[1]);
     exit;
 }

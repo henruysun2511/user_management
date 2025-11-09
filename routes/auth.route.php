@@ -14,7 +14,7 @@ if ($path === '/api/users/me' && $method === 'GET') {
     });
 }
 
-if ($_SERVER['REQUEST_URI'] === '/login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_URI'] === '/api/auth/login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $userController->login();
 }
 
@@ -24,15 +24,24 @@ if ($path === '/api/auth/register' && $method === 'POST') {
 }
 
 if ($path === '/api/auth/forgot-password' && $method === 'POST') {
-    RoleMiddleware::authorize('POST', '/api/auth/forgot-password');
-    $userController->sendOtp();
+    $userController->forgotPassword();
+    exit;
+}
+
+if ($path === '/api/auth/otp' && $method === 'POST') {
+    $userController->verifyOtp();
     exit;
 }
 
 if ($path === '/api/auth/reset-password' && $method === 'POST') {
+<<<<<<< HEAD
+    $userController->resetPassword();
+    exit;
+=======
         RoleMiddleware::authorize('POST', '/api/auth/reset-password');
         $userController->resetPassword();
         exit;
+>>>>>>> 693497ceb6ac6688ccb7e1a0414736820e20cc7b
 }
 
 if ($path === '/api/auth/logout' && $method ==='POST'){

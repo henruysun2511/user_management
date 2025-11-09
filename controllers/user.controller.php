@@ -24,9 +24,9 @@ class UserController {
 
         try {
             $result = $this->userService->getAllUsers($page, $limit, $search);
-            echo ResponseMessage::success("Lấy danh sách người dùng thành công", $result);
+            echo ResponseHelper::success("Lấy danh sách người dùng thành công", $result);
          } catch (Exception $e) {
-            echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
+            echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
 
@@ -47,6 +47,7 @@ class UserController {
 
     public function updateUser($id){
         $input = json_decode(file_get_contents('php://input'), true);
+        $fullName = $input['fullName'] ?? null;
         $gender = $input['gender'] ?? null;
         $phoneNumber = $input['phoneNumber'] ?? null;
         $role_id = $input['role_id'] ?? '';
@@ -64,7 +65,7 @@ class UserController {
         }
 
         try {
-            $user = $this->authService->updateUser($data);
+            $user = $this->userService->updateUser($id, $data);
             echo ResponseHelper::success("Cập nhật thông tin người dùng thành công", $user);
         } catch (Exception $e) {
             echo ResponseHelper::error("Lỗi" . $e->getMessage(), 400);
@@ -80,7 +81,7 @@ class UserController {
         $gender = $input['gender'] ?? null;
         $phoneNumber = $input['phoneNumber'] ?? null;
         $role_id = $input['role_id'] ?? '';;
-        $birth = $input['birth'];
+        $birth = $input['birth'] ?? null;
 
         if (empty($fullName) || empty($email) || empty($password)) {
             echo ResponseHelper::error("Vui lòng nhập đầy đủ thông tin", null, 400);
@@ -123,13 +124,13 @@ class UserController {
         }
         try{
             $result = $this->authService->sendOtp($email);
-            echo ResponseMessage::success("Đã gửi otp đến email của bạn", $result);
+            echo ResponseHelper::success("Đã gửi otp đến email của bạn", $result);
         } catch (Exception $e) {
-            echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
+            echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
 
-    public function verifyOto() {
+    public function verifyOtp() {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? '';
         $otp = $input['otp'] ?? '';
@@ -140,25 +141,25 @@ class UserController {
 
         try{
             $result = $this->authService->verifyToken($email, $otp);
-            echo ResponseMessage::success("Cập nhật mật khẩu thành công", $result);
+            echo ResponseHelper::success("Xác thực otp thành công", $result);
         } catch (Exception $e) {
-            echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
+            echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
 
     public function resetPassword() {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? '';
-        $newPassword = $input['password'] ?? '';
+        $newPassword = $input['newPassword'] ?? '';
         
         if (empty($newPassword)) {
             return ResponseHelper::error("Vui lòng nhập mật khẩu", null, 400);
         }
         try{
             $result = $this->authService->resetPassword($email, $newPassword);
-            echo ResponseMessage::success("Cập nhật mật khẩu thành công", $result);
+            echo ResponseHelper::success("Cập nhật mật khẩu thành công", $result);
         } catch (Exception $e) {
-            echo ResponseMessage::error("Lỗi: " . $e->getMessage(), 500);
+            echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
 

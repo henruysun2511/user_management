@@ -12,7 +12,7 @@ class UserModel {
     public function getAll($limit, $offset, $search){
         $sql = "SELECT *
                 FROM users 
-                WHERE username LIKE :search OR email LIKE :search 
+                WHERE email LIKE :search or fullName LIKE :search
                 ORDER BY id DESC 
                 LIMIT :limit OFFSET :offset";
 
@@ -27,7 +27,7 @@ class UserModel {
     }
 
     //Lấy người dùng theo ID
-     public function getById($id) {
+    public function getById($id) {
         $sql = "SELECT * FROM users WHERE id = :id LIMIT 1";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -38,37 +38,68 @@ class UserModel {
     //Tạo người dùng mới
    public function create($data) {
     $sql = "INSERT INTO users (email, password, fullName, phoneNumber, birth, gender, role_id) 
-            VALUES (:email, :password, :full_name, :phone, :birth, :gender, :role_id)";
-
+            VALUES (:email, :password, :fullName, :phoneNumber, :birth, :gender, :role_id)";
     $stmt = $this->conn->prepare($sql);
-    $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
-    $stmt->bindParam(':password', $data['password'], PDO::PARAM_STR);
-    $stmt->bindParam(':full_name', $data['full_name'], PDO::PARAM_STR);
-    $stmt->bindParam(':phone', $data['phone'], PDO::PARAM_STR);
-    $stmt->bindParam(':birth', $data['birth'], PDO::PARAM_STR);
-    $stmt->bindParam(':gender', $data['gender'], PDO::PARAM_STR);
-    $stmt->bindParam(':role_id', $data['role_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':password', $data['password']);
+    $stmt->bindParam(':fullName', $data['fullName']);
+    $stmt->bindParam(':phoneNumber', $data['phoneNumber']);
+    $stmt->bindParam(':birth', $data['birth']);
+    $stmt->bindParam(':gender', $data['gender']);
+    $stmt->bindParam(':role_id', $data['role_id']);
+    $stmt->execute();
 
-    return $stmt->execute();
+    return $this->conn->lastInsertId();
 }
 
 
     //Chỉnh sửa thông tin người dùng
-    public function update($id, $data) {
-        $sql = "UPDATE users SET username = :username, email = :email WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':username', $data['username']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+   public function update($id, $data) {
+    // Chuẩn bị các trường có trong $data
+    $fields = [];
+    $params = [];
+
+    if (isset($data['fullName'])) {
+        $fields[] = 'fullName = :fullName';
+        $params[':fullName'] = $data['fullName'];
+    }
+    if (isset($data['gender'])) {
+        $fields[] = 'gender = :gender';
+        $params[':gender'] = $data['gender'];
+    }
+    if (isset($data['phoneNumber'])) {
+        $fields[] = 'phoneNumber = :phoneNumber';
+        $params[':phoneNumber'] = $data['phoneNumber'];
+    }
+    if (isset($data['role_id'])) {
+        $fields[] = 'role_id = :role_id';
+        $params[':role_id'] = $data['role_id'];
+    }
+    if (isset($data['email'])) {
+        $fields[] = 'email = :email';
+        $params[':email'] = $data['email'];
     }
 
-    //Xóa người dùng
+    if (empty($fields)) {
+        return false; 
+    }
+
+    $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+
+    // Gán giá trị
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+    return $stmt->execute();
+}
 
     //Đếm số bản ghi
     public function countAll($search) {
         $sql = "SELECT COUNT(*) as total FROM users 
-                WHERE username LIKE :search OR email LIKE :search";
+                WHERE email LIKE :search or fullName LIKE :search";
         $stmt = $this->conn->prepare($sql);
         $searchParam = "%$search%";
         $stmt->bindParam(':search', $searchParam, PDO::PARAM_STR);

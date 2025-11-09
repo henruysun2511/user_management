@@ -100,8 +100,8 @@ class AuthService {
         $userData = [
             'email' => $data['email'],
             'password' => $hashedPassword,
-            'full_name' => $data['fullName'] ?? '',
-            'phone' => $data['phone'] ?? '',
+            'fullName' => $data['fullName'] ?? '',
+            'phoneNumber' => $data['phoneNumber'] ?? '',
             'birth' => $data['birth'] ?? null,
             'gender' => $data['gender'] ?? null,
             'role_id' => 1, 
@@ -159,6 +159,13 @@ class AuthService {
 
     // Đặt lại mật khẩu
     public function resetPassword($email, $newPassword) {
+        $user = $this->userModel->findByEmail($email);
+        if (!$user) {
+            return ResponseHelper::error("Email không tồn tại", null, 404);
+        }
+
+        $user_id = $user['id'];
+        
         $hashPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         return $this->userModel->updatePassword($user_id, $hashPassword);
     }

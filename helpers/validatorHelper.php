@@ -8,9 +8,7 @@ class ValidatorHelper {
             $errors[] = "Tên đăng nhập không được để trống";
         } elseif (strlen($data['fullName']) < 3) {
             $errors[] = "Tên đăng nhập phải có ít nhất 3 ký tự";
-        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $data['fullName'])) {
-            $errors[] = "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới";
-        }
+        } 
 
         // Kiểm tra email
         if (empty($data['email'])) {

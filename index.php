@@ -1,4 +1,6 @@
 <?php
+
+
 // Kết nối database
 require_once __DIR__ . '/database/database.php';
 
