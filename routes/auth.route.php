@@ -30,10 +30,23 @@ if ($path === '/api/auth/forgot-password' && $method === 'POST') {
 }
 
 if ($path === '/api/auth/reset-password' && $method === 'POST') {
-    RoleMiddleware::authorize('POST', '/api/auth/reset-password');
-    $userController->resetPassword();
-    exit;
+        RoleMiddleware::authorize('POST', '/api/auth/reset-password');
+        $userController->resetPassword();
+        exit;
 }
 
-  
+if ($path === '/api/auth/logout' && $method ==='POST'){
+    return authMiddleware($request, function($req) {
+        $controller = new UserController();
+            return $controller->logout();
+    });
+}
+
+if ($path === '/api/auth/refresh-token' && $method === 'GET'){
+    $controller = new UserController();
+        return $controller->refresh();
+}
+
+
+
 

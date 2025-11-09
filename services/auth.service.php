@@ -7,15 +7,18 @@ require_once __DIR__ . '/../models/otp.model.php';
 require_once __DIR__ . '/../helpers/mailHelper.php';
 require_once __DIR__ . '/../helpers/responseHelper.php';
 require_once __DIR__ . '/../helpers/validatorHelper.php';
+require_once __DIR__ . '/../models/token.model.php';
 
 class AuthService {
     private $userModel;
+    private $tokenModel;
     private $otpModel;
     private $secret = 'my_super_secret_key';
 
     public function __construct() {
         $this->userModel = new UserModel();
         $this->otpModel = new OtpModel();
+        $this->tokenModel=new TokenModel();
     }
 
     // Tạo token JWT
@@ -45,26 +48,41 @@ class AuthService {
             return ResponseHelper::error("Sai mật khẩu", null, 401);
         }
 
-        $payload = [
+        // Access Token (sống ngắn)
+        $accessPayload = [
             "id" => $user['id'],
             "email" => $user['email'],
             "role" => $user['role_id'],
-            "exp" => time() + (60 * 60 * 24)
+            "exp" => time() + (60 * 15) // 15 phút
         ];
+        $accessToken = JWT::encode($accessPayload, $this->secret, 'HS256');
 
-        $token = JWT::encode($payload, $this->secret, 'HS256');
+        // Refresh Token (sống dài)
+        $refreshPayload = [
+            "id" => $user['id'],
+            "type" => "refresh",
+            "exp" => time() + (60 * 60 * 24 * 7) // 7 ngày
+        ];
+        $refreshToken = JWT::encode($refreshPayload, $this->secret, 'HS256');
+
+        setcookie('refreshToken', $refreshToken, time() + 60*60*24*7, '/', '', false, true);
+
+
+        // Lưu refreshToken vào DB
+        $this->tokenModel->create($user['id'], $refreshToken);
 
         return ResponseHelper::success("Đăng nhập thành công", [
-            "token" => $token,
+            "accessToken" => $accessToken,
+            "refreshToken" => $refreshToken,
             "user" => [
                 "id" => $user['id'],
                 "email" => $user['email'],
                 "role" => $user['role_id']
             ]
         ]);
-    }
+}
 
-     public function register($data) {
+    public function register($data) {
         // Kiểm tra email đã tồn tại
         if ($this->userModel->findByEmail($data['email'])) {
             return ResponseHelper::error("Email đã được sử dụng", null, 401);
@@ -144,4 +162,45 @@ class AuthService {
         $hashPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         return $this->userModel->updatePassword($user_id, $hashPassword);
     }
+
+    public function refresh(  $refreshToken) {
+
+        try {
+            $decoded = JWT::decode($refreshToken, new Key($this->secret, 'HS256'));
+            
+            $tokenRecord = $this->tokenModel->find($refreshToken);
+            if (!$tokenRecord) return ResponseHelper::error("refreshToken không hợp lệ", null, 401);
+
+            // Tạo access token mới
+            $newAccessPayload = [
+                "id" => $decoded->id,
+                "exp" => time() + (60 * 15)
+            ];
+            $newAccessToken = JWT::encode($newAccessPayload, $this->secret, 'HS256');
+
+            return ResponseHelper::success("Làm mới token thành công", [
+                "accessToken" => $newAccessToken
+            ]);
+
+        } catch (Exception $e) {
+            return ResponseHelper::error("Refresh token sai hoặc hết hạn", null, 401);
+        }
+    }
+    
+    public function logout($refreshToken) {
+        $this->tokenModel->delete($refreshToken);
+         // Xóa cookie
+        setcookie(
+            'refreshToken',
+            '',
+            time() - 3600,
+            '/',
+            '',
+            false,
+            true // HttpOnly
+        );
+        return ResponseHelper::success("Đăng xuất thành công");
+    }
+
+
 }

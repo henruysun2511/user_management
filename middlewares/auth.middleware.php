@@ -16,9 +16,9 @@ function authMiddleware($request, $next) {
   }
 
   $token = substr($authHeader, 7);
-
   // Gọi service xác thực JWT
   $authService = new AuthService();
+
   $decoded = $authService->verifyToken($token);
 
   if (!$decoded) {
