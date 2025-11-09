@@ -3,12 +3,9 @@ require_once __DIR__ . '/../helpers/responseHelper.php';
 require_once __DIR__ . '/../database/database.php';
 
 class RoleMiddleware {
-    public static function authorize($method, $endpoint) {
-        // $user = $GLOBALS['auth_user'] ?? null;
-        $user['id'] = 1;
-
-        if (!$user) {
-            echo ResponseHelper::error("Chưa đăng nhập.", null ,401);
+    public static function authorize($user, $method, $endpoint) {
+        if (!$user || !isset($user['id'])) {
+            echo ResponseHelper::error("Chưa đăng nhập.", null, 401);
             exit;
         }
 
@@ -35,7 +32,7 @@ class RoleMiddleware {
         $permission = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$permission) {
-            echo ResponseHelper::error("Không có quyền truy cập endpoint này.", 403);
+            echo ResponseHelper::error("Không có quyền truy cập endpoint này.", null, 403);
             exit;
         }
     }
