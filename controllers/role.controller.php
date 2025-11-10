@@ -29,8 +29,8 @@ class RoleController {
         }
 
         try {
-            $this->roleService->createRole($name, $desc);
-            echo ResponseHelper::success("Tạo vai trò thành công");
+            $result = $this->roleService->createRole($name, $desc);
+            echo ResponseHelper::success("Tạo vai trò thành công", $result);
         } catch (Exception $e) {
             echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
@@ -47,8 +47,8 @@ class RoleController {
         }
 
         try {
-            $this->roleService->updateRole($id, $name, $desc);
-            echo ResponseHelper::success("Cập nhật vai trò thành công");
+            $result = $this->roleService->updateRole($id, $name, $desc);
+            echo ResponseHelper::success("Cập nhật vai trò thành công", $result);
         } catch (Exception $e) {
             echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
@@ -56,8 +56,8 @@ class RoleController {
 
     public function deleteRole($id) {
         try {
-            $this->roleService->deleteRole($id);
-            echo ResponseHelper::success("Xóa vai trò thành công");
+            $id = $this->roleService->deleteRole($id);
+            echo ResponseHelper::success("Xóa vai trò thành công", $id);
         } catch (Exception $e) {
             echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
@@ -72,6 +72,11 @@ class RoleController {
             echo ResponseHelper::error("role_id và permission_id là bắt buộc", 400);
             return;
         }
+
+        if (!$roleId || !is_array($permissionId) || empty($permissionId)) {
+    echo ResponseHelper::error("role_id và permission_id là bắt buộc và permission_id phải là mảng", 400);
+    return;
+       }
 
         try {
             $this->roleService->attachPermissionToRole($roleId, $permissionId);
@@ -98,5 +103,14 @@ class RoleController {
             echo ResponseHelper::error("Lỗi: " . $e->getMessage(), 500);
         }
     }
+
+    public function getPermissionsByRole($roleId) {
+    try {
+        $permissions = $this->roleService->getPermissionsByRole($roleId);
+        ResponseHelper::success("Lấy danh sách quyền theo vai trò thành công", $permissions);
+    } catch (Exception $e) {
+        ResponseHelper::error($e->getMessage(), 400);
+    }
+}
 }
 ?>
