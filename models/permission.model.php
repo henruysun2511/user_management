@@ -44,36 +44,59 @@ class PermissionModel {
     }
 
     //Thêm mới quyền
-    public function create($name, $apiPath, $method, $module = null) {
-        $stmt = $this->conn->prepare("INSERT INTO permissions (name, apiPath, method, module)
-                                      VALUES (:name, :apiPath, :method, :module)");
-        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-        $stmt->bindParam(':apiPath', $apiPath, PDO::PARAM_STR);
-        $stmt->bindParam(':method', $method, PDO::PARAM_STR);
-        $stmt->bindParam(':module', $module, PDO::PARAM_STR);
-        $stmt->execute();
-        return $this->conn->lastInsertId();
-    }
+public function create($name, $apiPath, $method, $module = null) {
+    $sql = "INSERT INTO permissions (name, apiPath, method, module)
+            VALUES (:name, :apiPath, :method, :module)";
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':apiPath', $apiPath);
+    $stmt->bindParam(':method', $method);
+    $stmt->bindParam(':module', $module);
+
+    $stmt->execute();
+    $id = $this->conn->lastInsertId();
+
+    // Lấy lại dữ liệu quyền vừa tạo
+    $stmt = $this->conn->prepare("SELECT * FROM permissions WHERE id = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     //Cập nhật quyền
-    public function update($id, $name, $apiPath, $method, $module = null) {
-        $stmt = $this->conn->prepare("UPDATE permissions 
-                                      SET name = :name, apiPath = :apiPath, method = :method, module = :module 
-                                      WHERE id = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-        $stmt->bindParam(':apiPath', $apiPath, PDO::PARAM_STR);
-        $stmt->bindParam(':method', $method, PDO::PARAM_STR);
-        $stmt->bindParam(':module', $module, PDO::PARAM_STR);
-        return $stmt->execute();
-    }
+ public function update($id, $name, $apiPath, $method, $module = null) {
+    $stmt = $this->conn->prepare("
+        UPDATE permissions 
+        SET name = :name, apiPath = :apiPath, method = :method, module = :module
+        WHERE id = :id
+    ");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+    $stmt->bindParam(':apiPath', $apiPath, PDO::PARAM_STR);
+    $stmt->bindParam(':method', $method, PDO::PARAM_STR);
+    $stmt->bindParam(':module', $module, PDO::PARAM_STR);
+    $stmt->execute();
+
+    // Sau khi update, lấy lại dữ liệu mới nhất
+    $stmt = $this->conn->prepare("SELECT * FROM permissions WHERE id = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     //Xóa quyền
     public function delete($id) {
-        $stmt = $this->conn->prepare("DELETE FROM permissions WHERE id = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
-    }
+    $stmt = $this->conn->prepare("DELETE FROM permissions WHERE id = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Trả về true nếu có ít nhất 1 dòng bị xóa
+    return $stmt->rowCount() > 0;
+   }
+
     //Thêm phương thức hỗ trợ filter
     public function getAllCustom($where, $params, $limit, $offset) {
         $sql = "SELECT * FROM permissions $where ORDER BY id DESC LIMIT :limit OFFSET :offset";

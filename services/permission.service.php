@@ -61,31 +61,33 @@ class PermissionService {
         return $permission;
     }
 //Tạo quyền mới (Validate dữ liệu đầu vào)
-    public function create($body) {
-        // Validate dữ liệu
-        if (empty($body['name'])) {
-            throw new Exception("Thiếu tên quyền (name)");
-        }
-        if (empty($body['apiPath'])) {
-            throw new Exception("Thiếu đường dẫn API (apiPath)");
-        }
-        if (empty($body['method'])) {
-            throw new Exception("Thiếu phương thức HTTP (method)");
-        }
-
-        // Giới hạn method hợp lệ
-        $validMethods = ['GET', 'POST', 'PATCH', 'DELETE'];
-        if (!in_array(strtoupper($body['method']), $validMethods)) {
-            throw new Exception("Phương thức HTTP không hợp lệ (chỉ chấp nhận GET, POST, PATCH, DELETE)");
-        }
-
-        return $this->model->create(
-            $body['name'],
-            $body['apiPath'],
-            strtoupper($body['method']),
-            $body['module'] ?? null
-        );
+public function create($body) {
+    // Validate dữ liệu đầu vào
+    if (empty($body['name'])) {
+        throw new Exception("Thiếu tên quyền (name)");
     }
+    if (empty($body['apiPath'])) {
+        throw new Exception("Thiếu đường dẫn API (apiPath)");
+    }
+    if (empty($body['method'])) {
+        throw new Exception("Thiếu phương thức HTTP (method)");
+    }
+
+    // Giới hạn method hợp lệ
+    $validMethods = ['GET', 'POST', 'PATCH', 'DELETE'];
+    $method = strtoupper($body['method']);
+    if (!in_array($method, $validMethods)) {
+        throw new Exception("Phương thức HTTP không hợp lệ (chỉ chấp nhận GET, POST, PATCH, DELETE)");
+    }
+
+    // Gọi xuống model để tạo quyền
+    return $this->model->create(
+        $body['name'],
+        $body['apiPath'],
+        $method,
+        $body['module'] ?? null
+    );
+}
 
   //Cập nhật quyền
     public function update($id, $body) {
@@ -114,16 +116,24 @@ class PermissionService {
 
     //Xóa quyền
     public function delete($id) {
-        if (!is_numeric($id) || $id <= 0) {
-            throw new Exception("ID không hợp lệ");
-        }
-
-        // Kiểm tra quyền có tồn tại
-        if (!$this->model->getById($id)) {
-            throw new Exception("Không tìm thấy quyền với ID = $id");
-        }
-
-        return $this->model->delete($id);
+    if (!is_numeric($id) || $id <= 0) {
+        throw new Exception("ID không hợp lệ");
     }
+
+    // Kiểm tra quyền có tồn tại
+    $permission = $this->model->getById($id);
+    if (!$permission) {
+        throw new Exception("Không tìm thấy quyền với ID = $id");
+    }
+
+    // Xóa và trả về bản ghi đã bị xóa (để hiển thị lại)
+    $success = $this->model->delete($id);
+    if (!$success) {
+        throw new Exception("Xóa quyền thất bại (có thể lỗi cơ sở dữ liệu)");
+    }
+
+    return $permission; // Trả về thông tin quyền đã bị xóa
+}
+
 }
 ?>
