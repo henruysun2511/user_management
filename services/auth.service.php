@@ -170,17 +170,25 @@ class AuthService {
         return $this->userModel->updatePassword($user_id, $hashPassword);
     }
 
-    public function refresh(  $refreshToken) {
-
+    public function refresh($refreshToken) {
         try {
             $decoded = JWT::decode($refreshToken, new Key($this->secret, 'HS256'));
             
             $tokenRecord = $this->tokenModel->find($refreshToken);
             if (!$tokenRecord) return ResponseHelper::error("refreshToken không hợp lệ", null, 401);
 
+            // Kiểm tra refresh token hết hạn
+            if ($decoded->exp < time()) {
+                return ResponseHelper::error("Refresh token đã hết hạn", null, 401);
+            }
+
+            $user= $this->userModel->getById($decoded->id);
+
             // Tạo access token mới
             $newAccessPayload = [
                 "id" => $decoded->id,
+                "email" => $user['email'],
+                "role" => $user['role_id'],
                 "exp" => time() + (60 * 15)
             ];
             $newAccessToken = JWT::encode($newAccessPayload, $this->secret, 'HS256');
@@ -193,6 +201,7 @@ class AuthService {
             return ResponseHelper::error("Refresh token sai hoặc hết hạn", null, 401);
         }
     }
+    
     
     public function logout($refreshToken) {
         $this->tokenModel->delete($refreshToken);
