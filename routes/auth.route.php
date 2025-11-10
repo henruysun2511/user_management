@@ -34,10 +34,14 @@ if ($path === '/api/auth/otp' && $method === 'POST') {
 }
 
 if ($path === '/api/auth/reset-password' && $method === 'POST') {
-
-    RoleMiddleware::authorize('POST', '/api/auth/reset-password');
+<<<<<<< HEAD
     $userController->resetPassword();
     exit;
+=======
+        RoleMiddleware::authorize('POST', '/api/auth/reset-password');
+        $userController->resetPassword();
+        exit;
+>>>>>>> 693497ceb6ac6688ccb7e1a0414736820e20cc7b
 }
 
 if ($path === '/api/auth/logout' && $method ==='POST'){
@@ -51,6 +55,8 @@ if ($path === '/api/auth/refresh-token' && $method === 'GET'){
     $controller = new UserController();
         return $controller->refresh();
 }
+
+
 
 
 

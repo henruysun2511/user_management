@@ -18,19 +18,20 @@ class RoleService {
         return $this->roleModel->create($name, $desc);
     }
 
-    public function updateRole($id, $name, $desc = null) {
-        $role = this.roleModel->findById($id);
-        
-        $newName = $desc ?? $role['name'];
-        $newDesc = $desc ?? $role['description'];
-        if (!$role) {
-            return ResponseHelper::error("Vai trò không tồn tại", null, 404);
-        }
-
-        return $this->roleModel->update($id, $newName, $newDesc);
+   public function updateRole($id, $name, $desc = null) {
+    $role = $this->roleModel->findById($id);
+    if (!$role) {
+        return ResponseHelper::error("Vai trò không tồn tại", null, 404);
     }
 
+    $newName = $name; // sửa từ $desc -> $name
+    $newDesc = $desc ?? $role['description']; // nếu null thì giữ nguyên description
+
+    return $this->roleModel->update($id, $newName, $newDesc);
+}
+
     public function deleteRole($id) {
+        $role = $this->roleModel->findById($id);
         if (!$role) {
             return ResponseHelper::error("Vai trò không tồn tại", null, 404);
         }
@@ -46,6 +47,21 @@ class RoleService {
         }
 
         return $this->roleModel->delete($id);
+    }
+
+     public function getPermissionsByRole($roleId) {
+        if (!is_numeric($roleId) || $roleId <= 0) {
+            throw new Exception("ID vai trò không hợp lệ");
+        }
+
+        // Kiểm tra role có tồn tại không
+        $role = $this->roleModel->findById($roleId);
+        if (!$role) {
+            throw new Exception("Không tìm thấy vai trò với ID = $roleId");
+        }
+
+        // Gọi model lấy quyền
+        return $this->roleModel->getPermissions($roleId);
     }
 
     public function attachPermissionToRole($roleId, $permissionId) {
