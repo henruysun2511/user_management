@@ -9,11 +9,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 //GET /api/roles
+// if ($path === '/api/roles' && $method === 'GET') {
+//     return authMiddleware([], function($req) use ($roleController) {
+//         RoleMiddleware::authorize($req['user'], 'GET', '/api/roles');
+//         $roleController->getAllRoles();
+//     });
+// }
+
 if ($path === '/api/roles' && $method === 'GET') {
-    return authMiddleware([], function($req) use ($roleController) {
-        RoleMiddleware::authorize($req['user'], 'GET', '/api/roles');
         $roleController->getAllRoles();
-    });
 }
 
 
@@ -61,3 +65,5 @@ if ($path === '/api/roles/detach-permission' && $method === 'POST') {
     });
     exit;
 }
+
+
